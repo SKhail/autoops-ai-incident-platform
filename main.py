@@ -1,25 +1,15 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from datetime import datetime
-from enum import Enum 
+from database import engine, Base
+from models import Log
 
-
-class Severity(str, Enum):
-    INFO = "INFO"
-    WARN = "WARN"
-    ERROR = "ERROR"
-
-class Log(BaseModel):
-    service: str
-    severity: Severity
-    message: str
-    timestamp: datetime
+Base.metadata.create_all(engine)
 
 app = FastAPI()
 
-@app.post("/logs/")
-async def create_log(log: Log):
-   return {
-       "status": "log received",
-       "log": log
-   }
+# @app.post("/logs")
+# async def create_log(log: Log):
+#    return {
+#     "status": "log received",
+#     "log": log
+#    }
+
