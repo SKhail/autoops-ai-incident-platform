@@ -1,15 +1,38 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from database import engine, Base
-from models import Log
+from datetime import datetime
+from sqlalchemy.orm import Session
+from contextlib import asynccontextmanager
+from models import LogRecord
+from schemas import LogCreate
 
-Base.metadata.create_all(engine)
 
-app = FastAPI()
+def create_database_and_tables():
+   Base.metadata.create_all(engine)
 
-# @app.post("/logs")
-# async def create_log(log: Log):
-#    return {
-#     "status": "log received",
-#     "log": log
-#    }
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+   create_database_and_tables()
+   yield
+
+app = FastAPI(lifespan=lifespan)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+@app.post("/logs")
+def create_log(log: LogCreate, session: Session = Depends(get_session)):
+    db_log = LogRecord(
+        service=log.service,
+        severity=log.severity,
+        message=log.message,
+        timestamp=datetime.now()
+    )
+    session.add(db_log)
+    session.commit()
+    session.refresh(db_log)
+    return db_log 
+
 
