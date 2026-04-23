@@ -37,7 +37,7 @@ def create_log(log: LogCreate, session: Session = Depends(get_session)):
     session.refresh(db_log)
     return db_log 
 
-# get the logs information based on building simulated logs
+# get the logs information from the simulated logs
 @app.get("/logs")
 def read_log(
     session: Session = Depends(get_session),
