@@ -13,35 +13,29 @@ def test_post_log_success(db_session):
         "message":  "database timeout" })
     print(response)
 
-    assert response.status_code == 200
+    assert response.status_code == 200, f"Expected 200, received {response.status_code}. Reponse: {response.text}"
     data = response.json()
     assert data["service"] == "payment-api"
     assert data["severity"] == "ERROR"
     assert data["message"] == "database timeout"
 
 
-
-
-# # Post/Logs reject inbalid payload types or missing fields 
-
-
-
-
-
-
-
-# # GET/logs return stored logs successfully 
-# # def test_get(async_client: AsyncClient):
-# #     body = "Test Post"
+# # Post/Logs reject inbalid data
+def test_post_log_missing_message(db_session):
+    response = client.post("/logs", json={
+        "service": "payment-api",
+        "severity": "123",
+        "message":  "database timeout" })
     
-# #     response = async_client.get(
-# #         "/logs", 
-# #         json={"body: body",
-# #      })
-   
-# #     assert response.status_code == 200  
-# #     assert response.json() == {"message": "success"}
+    assert response.status_code == 422, f"Expected 422, received {response.status_code}. Reponse: {response.text}"
+    
+    
 
+# Get /logs check list returned 
+
+
+
+#Get  /logs check limit
 
 
 
