@@ -13,7 +13,7 @@ def test_post_log_success(db_session):
         "message":  "database timeout" })
     print(response)
 
-    assert response.status_code == 200, f"Expected 200, received {response.status_code}. Reponse: {response.text}"
+    assert response.status_code == 200, f"Expected 200, received {response.status_code}. Response: {response.text}"
     data = response.json()
     assert data["service"] == "payment-api"
     assert data["severity"] == "ERROR"
@@ -27,15 +27,27 @@ def test_post_log_missing_message(db_session):
         "severity": "123",
         "message":  "database timeout" })
     
-    assert response.status_code == 422, f"Expected 422, received {response.status_code}. Reponse: {response.text}"
+    assert response.status_code == 422, f"Expected 422, received {response.status_code}. Response: {response.text}"
     
     
 
-# Get /logs check list returned 
+# Get /logs return 200 status code and check list of data return correctly
+def test_get_log(db_session):
+    response = client.get("/logs")
+    assert response.status_code == 200, f"Expected 200, received {response.status_code}. Response: {response.text}"
+    data = response.json()
 
-
+    # Verify if the data returns the correct structure 
+    assert isinstance(data, list)
+    #Verify if the data exists and checks the strctute of the item in the list
+    if len(data) > 0:
+        assert "service" in data[0]
+        assert "severity" in data[0]
+        assert "message" in data[0]
 
 #Get  /logs check limit
-
+def test_get_limit_check(db_session):
+    response = client.get("/logs", params={"limit": 0})
+    assert len(response.json()) == 0
 
 
